@@ -1,4 +1,5 @@
 #Wehkamp Assesment - Valentin Dominte
+
 This is the assessment project for 'Full stack Developer' position.
 It consists of a REST API for a shopping basket using Scala and Akka.
 
