@@ -68,7 +68,14 @@ class ShoppingBasket() extends Actor {
         case ItemsBooked(product) =>
           items.find(_.product == product) match {
             case None =>
-              val newItem = BasketItem(items.size.toString, product, quantity)
+              def generateId = {
+                items match {
+                  case Nil => "0"
+                  case _ => (items.maxBy(_.id).id.toInt + 1).toString
+                }
+              }
+
+              val newItem = BasketItem(generateId, product, quantity)
               items = items :+ newItem
               initialSender ! ItemAdded(newItem)
             case Some(item) =>
