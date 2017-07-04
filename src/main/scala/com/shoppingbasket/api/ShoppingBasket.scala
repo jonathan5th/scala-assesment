@@ -46,7 +46,6 @@ class ShoppingBasket() extends Actor {
   implicit def executionContext = ActorSystem().dispatcher
   implicit val timeout: Timeout = ConfigParams.timeout
 
-  private var items = List.empty[BasketItem]
   context.actorSelection("/user/productCatalog") ! Identify()
 
   def uuid = java.util.UUID.randomUUID.toString
@@ -54,12 +53,12 @@ class ShoppingBasket() extends Actor {
   override def receive: Receive = {
     case ActorIdentity(_, optRef) =>
       optRef match {
-        case Some(ref) => context.become(active(ref))
+        case Some(ref) => context.become(active(ref, List.empty[BasketItem]))
         case None => context.stop(self)
       }
   }
 
-  def active(productCatalog: ActorRef): Actor.Receive = {
+  def active(productCatalog: ActorRef, items: List[BasketItem]): Actor.Receive = {
     case GetAllItems =>
       sender ! AllItems(items)
     case AddItem(productId, quantity) =>
@@ -76,15 +75,15 @@ class ShoppingBasket() extends Actor {
               }
 
               val newItem = BasketItem(generateId, product, quantity)
-              items = items :+ newItem
+              context.become(active(productCatalog, items :+ newItem))
               initialSender ! ItemAdded(newItem)
             case Some(item) =>
               val updatedItem = item.copy(quantity = item.quantity + quantity)
-              items = items.map{
-                case BasketItem(id, _, _) if id == item.id => updatedItem
+              val updatedItems = items.map {
                 case basketItem if basketItem.id == item.id => updatedItem
                 case basketItem => basketItem
               }
+              context.become(active(productCatalog, updatedItems))
               initialSender ! ItemUpdated(updatedItem)
           }
         case OutOfStock(product) =>
@@ -98,10 +97,10 @@ class ShoppingBasket() extends Actor {
           val initialSender = sender
           productCatalog.ask(ProductCatalog.CancelItemsBooking(item.product.productId, item.quantity)).mapTo[BookingResponse].foreach {
             case BookingCanceled =>
-              items = items.filter(_.id != itemId)
+              context.become(active(productCatalog, items.filter(_.id != itemId)))
               initialSender ! ItemDeleted(item)
             case InvalidProductId =>
-              items = items.filter(_.id == itemId)
+              context.become(active(productCatalog, items.filter(_.id != itemId)))
               initialSender ! InvalidProduct(item.product.productId)
           }
         case None =>

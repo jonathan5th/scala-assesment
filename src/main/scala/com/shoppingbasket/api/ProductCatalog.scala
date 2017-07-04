@@ -40,16 +40,17 @@ object ProductCatalog {
 class ProductCatalog extends Actor {
 
   import ProductCatalog._
-  private var products = List(ProductEntry(SampleProducts.pencil, 10), ProductEntry(SampleProducts.smartPencil, 10))
 
-  private def updateStockForProductId(productId: String, newStock: Int) = {
-    products = products.map {
+  private def updateStockForProductId(products: List[ProductEntry], productId: String, newStock: Int) = {
+    products.map {
       case ProductEntry(product@Product(`productId`, _, _, _), _) => ProductEntry(product, newStock)
       case productEntry => productEntry
     }
   }
 
-  override def receive: Receive = {
+  override def receive: Receive = active(List(ProductEntry(SampleProducts.pencil, 10), ProductEntry(SampleProducts.smartPencil, 10)))
+
+  def active(products: List[ProductEntry]): Receive = {
 
     case BookItems(productId, quantity) =>
       products.find(_.product.productId == productId) match {
@@ -58,7 +59,8 @@ class ProductCatalog extends Actor {
         case Some(productEntry) if productEntry.stock < quantity =>
           sender ! OutOfStock(productEntry.product)
         case Some(productEntry) =>
-          updateStockForProductId(productId, productEntry.stock - quantity)
+          val updatedProducts = updateStockForProductId(products, productId, productEntry.stock - quantity)
+          context.become(active(updatedProducts))
           sender ! ItemsBooked(productEntry.product)
       }
     case CancelItemsBooking(productId, quantity) =>
@@ -66,7 +68,8 @@ class ProductCatalog extends Actor {
         case None =>
           sender ! InvalidProductId
         case Some(productEntry) =>
-          updateStockForProductId(productId, productEntry.stock + quantity)
+          val updatedProducts = updateStockForProductId(products, productId, productEntry.stock + quantity)
+          context.become(active(updatedProducts))
           sender ! BookingCanceled
       }
   }
