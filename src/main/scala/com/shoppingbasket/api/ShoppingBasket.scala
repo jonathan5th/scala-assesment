@@ -10,11 +10,13 @@ object ShoppingBasket {
 
   def name = "shoppingBasket"
 
-  case object GetAllItems
+  sealed trait BasketRequest
 
-  case class AddItem(productId: String, quantity: Int)
+  case object GetAllItems extends BasketRequest
 
-  case class DeleteItem(id: String)
+  case class AddItem(productId: String, quantity: Int) extends BasketRequest
+
+  case class DeleteItem(id: String) extends BasketRequest
 
   case class BasketItem(id: String = "", product: ProductCatalog.Product, quantity: Int) {
     require(quantity > 0)
@@ -47,8 +49,6 @@ class ShoppingBasket() extends Actor {
   implicit val timeout: Timeout = ConfigParams.timeout
 
   context.actorSelection("/user/productCatalog") ! Identify()
-
-  def uuid = java.util.UUID.randomUUID.toString
 
   override def receive: Receive = {
     case ActorIdentity(_, optRef) =>

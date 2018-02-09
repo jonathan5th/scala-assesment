@@ -17,11 +17,13 @@ object ProductCatalog {
     require(stock >= 0)
   }
 
-  case class BookItems(productId: String, quantity: Int) {
+  sealed trait BookingRequest
+
+  case class BookItems(productId: String, quantity: Int) extends BookingRequest {
     require(quantity > 0)
   }
 
-  case class CancelItemsBooking(productId: String, quantity: Int) {
+  case class CancelItemsBooking(productId: String, quantity: Int) extends BookingRequest {
     require(quantity > 0)
   }
 

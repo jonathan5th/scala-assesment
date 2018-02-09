@@ -17,6 +17,7 @@ class ShoppingAPI(system: ActorSystem)
   implicit def executionContext = system.dispatcher
 
   override def createBasket() = {
+    //create the ProductCatalog first as the ShoppingBasket needs it
     system.actorOf(ProductCatalog.props, ProductCatalog.name)
     system.actorOf(ShoppingBasket.props, ShoppingBasket.name)
   }
