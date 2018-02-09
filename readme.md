@@ -1,6 +1,6 @@
 #Wehkamp Assesment - Valentin Dominte
 
-This is the assessment project for 'Full stack Developer' position.
+This is the assessment project for 'Java / Scala Developer' position.
 It consists of a REST API for a shopping basket using Scala and Akka.
 
 To run it you need Java 8 and Sbt installed. Use `sbt test` or `sbt run`
