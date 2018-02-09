@@ -5,7 +5,7 @@ package object api {
   sealed trait ShoppingRequest
 
   case class AddItemRequest(productId: String, quantity: Int) extends ShoppingRequest {
-    require(quantity > 0)
+    require(quantity > 0, "Quantity must be positive")
   }
 
 }

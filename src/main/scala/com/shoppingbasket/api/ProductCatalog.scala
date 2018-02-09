@@ -14,17 +14,17 @@ object ProductCatalog {
                      price: Double)
 
   case class ProductEntry(product: Product, stock: Int) {
-    require(stock >= 0)
+    require(stock >= 0, "Quantity must be positive")
   }
 
   sealed trait BookingRequest
 
   case class BookItems(productId: String, quantity: Int) extends BookingRequest {
-    require(quantity > 0)
+    require(quantity > 0, "Quantity must be positive")
   }
 
   case class CancelItemsBooking(productId: String, quantity: Int) extends BookingRequest {
-    require(quantity > 0)
+    require(quantity > 0, "Quantity must be positive")
   }
 
   sealed trait BookingResponse

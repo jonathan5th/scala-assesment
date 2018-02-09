@@ -19,7 +19,7 @@ object ShoppingBasket {
   case class DeleteItem(id: String) extends BasketRequest
 
   case class BasketItem(id: String = "", product: ProductCatalog.Product, quantity: Int) {
-    require(quantity > 0)
+    require(quantity > 0, "Quantity must be positive")
   }
 
   sealed trait BasketResponse

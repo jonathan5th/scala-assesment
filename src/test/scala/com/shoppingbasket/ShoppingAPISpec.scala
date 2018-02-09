@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.shoppingbasket.api.ShoppingBasket._
-import com.shoppingbasket.api.{AddItemRequest, ShoppingAPI, ShoppingMarshalling, ShoppingRoutes}
+import com.shoppingbasket.api.{AddItemRequest, ShoppingAPI, ShoppingMarshalling}
 import com.shoppingbasket.util.SampleProducts
 import net.liftweb.json.{DefaultFormats, Serialization}
 import org.scalatest.{Matchers, WordSpecLike}
